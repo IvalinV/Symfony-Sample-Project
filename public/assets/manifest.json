@@ -1,0 +1,7 @@
+{
+  "assets/styles/dashboard.css": "/assets/styles/dashboard.css",
+  "assets/styles/dashboard.js": "/assets/styles/dashboard.js",
+  "assets/styles/login.css": "/assets/styles/login.css",
+  "assets/styles/login.js": "/assets/styles/login.js",
+  "assets/runtime.js": "/assets/runtime.js"
+}
