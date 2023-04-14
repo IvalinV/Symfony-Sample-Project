@@ -2,14 +2,18 @@
 
 namespace App\Controller;
 
-use App\Utils\AbstractClasses\CategoryTreeAdminPage;
+use App\Entity\Category;
+use App\Utils\CategoryTreeAdminPage;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  *@Route("admin")
- * 
+ *
 */
 
 class AdminController extends AbstractController
@@ -27,18 +31,71 @@ class AdminController extends AbstractController
      */
     public function categories(CategoryTreeAdminPage $categories): Response
     {
-        dd($categories->getCategoryList());
         return $this->render('admin/categories.html.twig', [
-            'categories' => ''
+            'categories' => $categories->getCategoryList()
         ]);
     }
 
     /**
-     * @Route("/edit-category", name="admin_edit_category")
+     * @Route("/edit-category/{id}", name="admin_edit_category")
      */
-    public function editCategory(): Response
+    public function editCategory($id, CategoryTreeAdminPage $categoryTreeAdminPage): Response
     {
-        return $this->render('admin/edit_category.html.twig');
+        return $this->render('admin/edit_category.html.twig', [
+            'categories' => $categoryTreeAdminPage->getCategoryList(),
+            'category' => $categoryTreeAdminPage->getCategory($id),
+        ]);
+    }
+
+    /**
+     * @Route("/update-category/{id}", methods={"POST"}, name="admin_update_category")
+     */
+    public function updateCategory($id, Request $data, EntityManagerInterface $manager): Response
+    {
+        // dd($data->request);
+        $category = $manager
+            ->getRepository(Category::class)
+            ->findOneBy(['id' => $id]);
+        
+        $parent = $manager
+            ->getRepository(Category::class)
+            ->findOneBy(['id' => $data->request->get('parent')]);
+
+        $category->setName($data->request->get('name'));
+        $category->setParent($parent);
+
+        $manager->persist($category);
+        $manager->flush();
+
+        return $this->redirectToRoute('admin_categories');
+    }
+
+    /**
+     * @Route("/create-category", methods={"POST"}, name="admin_create_category")
+     */
+    public function createCategory(Request $data, EntityManagerInterface $manager): Response
+    {
+        $category = new Category();
+        $parent = $manager->getRepository(Category::class)->findOneBy(['id' => $data->request->get('parent')]);
+        
+        $category->setName($data->request->get('name'));
+        $category->setParent($parent);
+
+        $manager->persist($category);
+        $manager->flush();
+
+        return $this->redirectToRoute('admin_categories');
+    }
+
+    /**
+     * @Route("/delete-category/{id}", name="admin_delete_category", requirements={"id":"\d+"})
+     */
+    public function deleteCategory(Category $category, EntityManagerInterface $manager)
+    {
+        $manager->remove($category);
+        $manager->flush();
+
+        return $this->redirectToRoute('admin_categories');
     }
 
 
