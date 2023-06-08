@@ -55,14 +55,17 @@
     </ul>
 {% endfor %}
 
-<form action="{{ path('admin_create_category') }}" method="POST">
+{{ form_start(form, {'attr': {'novalidate':'novavalidate'}}) }}
+{# <form action="{{ path('admin_create_category') }}" method="POST"> #}
     <div class="col-md-4 mb-3">
         <label for="validationServer01">Add new category</label>
-        <input type="text" name="name" class="form-control is-invalid" id="validationServer01" placeholder="Category name"
-            required>
+        {{ form_widget(form.name, {'attr': {'class':'form-control' ~ is_invalid, 'placeholder': 'Category name'}, 'id': 'validationServer01'}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.name) }}
+        </div>
         <br>
 	    <label for="inlineFormCustomSelect">Parent:</label>
-        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="parent">
+        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="category[parent]">
             <option value="null" disabled selected>Select Parent</option>
             {% for category in categories %}
                 <option value="{{category.id}}">{{category.name}}</option>
@@ -78,11 +81,9 @@
                 {% endif %}
             {% endfor %}
         </select>
-        <div class="invalid-feedback">
-            Category already exists!
-        </div>
+
         <button class="btn btn-primary mt-3" type="submit">Add</button>
     </div>
-</form>
-
+{# </form> #}
+{{ form_end(form) }}
 {% endblock %}

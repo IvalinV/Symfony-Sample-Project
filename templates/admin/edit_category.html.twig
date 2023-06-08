@@ -4,19 +4,33 @@
     
 <h2>Editing category</h2>
 
-<form action="{{ path('admin_update_category', {id:category.id}) }}" method="POST">
-    <input type="text" class="form-control is-invalid" id="validationServer01" name="name" placeholder="Category name" value="{{category.name}}"
-        required>
+{{ form_start(form, {'attr': {'novalidate':'novavalidate'}}) }}
+{# <form action="{{ path('admin_update_category', {id:selectedCategory.id}) }}" method="POST"> #}
+    {# <input type="text" class="form-control is-invalid" id="validationServer01" name="name" placeholder="Category name" value="{{selectedCategory.name}}"
+        required> #}
+    {{ form_widget(form.name, {'attr': {'class':'form-control' ~ is_invalid, 'placeholder': 'Category name'}, 'id': 'validationServer01', 'value': ' ' ~ selectedCategory.name}) }}
+    <div class="invalid-feedback">
+        {{ form_errors(form.name) }}
+    </div>
     <br>
-    {% if category.parent is not null %}
+    {% if selectedCategory.parent is not null %}
         <label for="inlineFormCustomSelect">Parent:</label>
-        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="parent">
+        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="category[parent]">
             <option value="null" disabled selected>Select Parent</option>
             {% for category in categories %}
-                <option name="parent" value="{{category.id}}">{{category.name}}</option>
+                {% if category.getId() == selectedCategory.parent.getId() %}
+                    <option selected name="parent" value="{{category.id}}">{{category.name}}</option>
+                {% else %}
+                    <option name="parent" value="{{category.id}}">{{category.name}}</option>
+                {% endif %}
                 {% if category.subcategories is defined %}
                     {% for sub in category.subcategories %}
-                        <option name="parent" value="{{sub.id}}">----{{sub.name}}</option>
+                        {% if sub.getId() == selectedCategory.parent.getId() %}
+                            <option selected name="parent" value="{{sub.id}}">----{{sub.name}}</option>
+                        {% else %}
+                            <option name="parent" value="{{sub.id}}">----{{sub.name}}</option>
+                        {% endif %}
+                        
                         {% if sub.subcategories %}
                             {% for item in sub.subcategories %}
                                 <option name="parent" value="{{item.id}}">------------{{item.name}}</option>
@@ -32,5 +46,6 @@
     </div>
     <button class="btn btn-primary mt-3" type="submit">Save</button>
 
-</form>
+{# </form> #}
+{{ form_end(form) }}
 {% endblock %}
